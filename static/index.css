@@ -1,0 +1,72 @@
+.checkbox_con {
+    line-height: 30px;
+    overflow: hidden;
+    /* cursor: pointer; */
+}
+
+.checkbox_con .checkbox_inner {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border: 2px solid #cdcdcd;
+    border-radius: 25%;
+    vertical-align: middle;
+    cursor: pointer;
+}
+
+.checkbox_arrow_box {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin-right: 5px;
+}
+
+.checkbox_con .checkbox_arrow {
+    display: inline-block;
+    width: 0px;
+    height: 0px;
+    border: 6px solid transparent;
+    cursor: pointer;
+    border-right-width: 0;
+    border-left-color: #97a8be;
+    border-left-width: 7px;
+    transform: rotate(0deg);
+    transition: transform .3s ease-in-out;
+}
+
+.checkbox_con .checkbox_arrow.expanded {
+    transform: rotate(90deg);
+}
+
+.checkbox_con .checkbox_msg {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.checkbox_con .child_con {
+    height: 0;
+    transition: height 0.6s ease-in-out;
+    padding-left: 40px;
+}
+
+.checkbox_con .child_con.active {
+    height: auto;
+}
+
+.checkbox_con.checked_active>.checkbox_inner {
+    border: 2px solid #1a97db;
+    border-radius: 25%;
+}
+
+.checkbox_con.checked_active>.checkbox_inner:before {
+    position: relative;
+    top: 0px;
+    left: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    content: "";
+    font-weight: bold;
+    background: url('../assets/tick.png') center no-repeat;
+    background-size: 100% auto;
+}
