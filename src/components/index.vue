@@ -145,3 +145,27 @@
           ]
         }
       ]
+
+
+// currentNode.forEach(function(ele, index) {
+            //   if (ele._parentId === null) {
+            //     //给父节点添加自定义属性 初始化只有根目录显示不打开子目录
+            //     ele.isShow = true;
+            //     ele.isChecked = false;
+            //     ele.isOpen = true;
+            //     //删除数组中的元素
+            //     currentNode.splice(index, 1);
+            //     //循环数组找出子元素
+            //     currentNode.forEach(function(e, i) {
+
+            //     })
+            //     ele.childrenNode = []
+            //   } else {
+            //     //给子类增加自定义数据
+            //     ele.isShow = false;
+            //     ele.isChecked = false;
+            //     ele.isOpen = true;
+            //   }
+            //   newNode.push(ele);
+            // }, this);
+            // console.log(newNode);//调试 显示 计算后的对象 后期删除
