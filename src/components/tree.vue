@@ -14,24 +14,49 @@ export default {
             //重构后的数据且初始化数据
             let newNode = [];
             let currentNode = this.node;
-
-
-
-            console.log(this.reBuildData(currentNode));;
-
-
+            // currentNode.forEach(function(element, index) {
+            //     this.reBuildData()
+            // }, this);
+            this.reBuildData(currentNode, newNode);
+            console.log(newNode);
             return newNode
         }
     },
     props: ['treeData'],
     methods: {
         //数据重建方法
-        reBuildData(arr) {
-            let currentArr = [...arr];
-            console.log(currentArr);
-            // arr.forEach(function(ele, index) {
-            //     console.log(checkChildNode(ele._parentId, currentNode));
-            // })
+        reBuildData(arr, outArr) {
+            arr.forEach((ele, index) => {
+                if (ele._parentId === null) {
+                    // 给父节点添加自定义属性 初始化只有根目录显示不打开子目录
+                    ele.isShow = true;
+                    ele.isChecked = false;
+                    ele.isOpen = true;
+                    ele.childNode = this.checkChildNode(ele.id, arr);
+                    outArr.push(ele);
+                    arr.splice(index, 1);
+                } else {
+                    ele.isShow = false;
+                    ele.isChecked = false;
+                    ele.isOpen = true;
+                    ele.childNode = this.checkChildNode(ele.id, arr);
+                    outArr.push(ele);
+                    arr.splice(index, 1);
+                }
+            })
+        },
+        //找出一个id下的所有子节点的方法 ，用于在递归遍历中
+        checkChildNode(cId, arr) {
+            let currentArr = [];
+            arr.forEach(function(element, index) {
+                // console.log(element._parentId == cId);
+                if (element._parentId == cId) {
+                    currentArr.push(element);
+                    console.log('找到的子元素', element);
+                }
+            }, this);
+            // console.log('返回数组', currentArr);
+            return currentArr;
         },
         show(eve) {
             let _parent = eve.srcElement.parentNode;
@@ -46,17 +71,8 @@ export default {
                 _current.classList.add('expanded');
             }
             eve.stopPropagation();
-        },
-        //找出一个id下的所有子节点的方法 ，用于在递归遍历中
-        checkChildNode(cId, arr) {
-            let currentArr = [];
-            arr.forEach(function(element, index) {
-                if (element._parentId == cId) {
-                    currentArr.push(element);
-                }
-            }, this);
-            return currentArr;
         }
+
     },
     render: function(h) {
         let This = this;
