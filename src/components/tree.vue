@@ -5,35 +5,41 @@ export default {
     components: {},
     data() {
         return {
-            node: this.treeData
+            node: this.treeData,
+            newNode: []
         }
 
     },
     computed: {
         newTreeData() {
             //重构后的数据且初始化数据
-            let newNode = [];
-            let currentNode = this.node;
-            this.reBuildData(currentNode, newNode);
-            // console.log(newNode);
-            // console.log(currentNode);
-            return newNode
+            // let newNode = [];
+            //深度复制node给currentNode
+            let currentNode = this.copeArr(this.node);
+            this.reBuildData(currentNode, this.newNode);
+            return this.newNode
         }
     },
-    props: ['treeData'],
+    props: ['treeData', 'isMultiple'],
     methods: {
+        //深度赋值node数组的方法
+        copeArr(arr) {
+            let newArr = [];
+            arr.forEach(function(element) {
+                newArr.push(JSON.parse(JSON.stringify(element)));
+            }, this);
+            return newArr
+        },
         //数据重建方法
         reBuildData(arr, outArr) {
             arr.forEach((ele, index) => {
-                // console.log(ele._parentId, ele.name);
                 if (ele._parentId == null) {
                     // 给父节点添加自定义属性 初始化只有根目录显示不打开子目录
-                    // console.log(ele.name);
                     ele.isShow = true;
                     ele.isChecked = false;
-                    ele.isOpen = true;
+                    ele.isOpen = false;
                     ele.childNode = this.checkChildNode(ele.id, arr);
-                    outArr.push(ele);
+                    outArr.push(JSON.parse(JSON.stringify(ele)));
                 }
             })
         },
@@ -46,16 +52,26 @@ export default {
                     //找到子元素后继续寻找子元素的子元素
                     element.isShow = true;
                     element.isChecked = false;
-                    element.isOpen = true;
+                    element.isOpen = false;
                     element.childNode = this.checkChildNode(element.id, arr);
-                    currentArr.push(element);
+                    currentArr.push(JSON.parse(JSON.stringify(element)));
                 }
             }, this);
             return currentArr;
         },
+        findNodeAndSet(id, key, value, arr) {
+            console.log(id, key, value, arr)
+            arr.forEach(function(element) {
+                if (element.id == id) {
+                    element[key] = value;
+                    return
+                } else if (element.childNode.length) {
+                    this.findNodeAndSet(id, key, value, element.childNode)
+                }
+            }, this);
+        },
         createNode(h, item) {
             let This = this;
-            console.log(item.name);
             if (item.isShow) {
                 return h('div', {
                     'class': {
@@ -74,12 +90,19 @@ export default {
 
                             }
                         }, [
-                                //增加下拉箭头图标
-                                h('i', {
-                                    'class': {
-                                        'checkbox_arrow': true
+                                (function() {
+                                    if (item.childNode.length) {
+                                        return h('i', {
+                                            'class': {
+                                                'checkbox_arrow': true
+                                            },
+                                            attrs: {
+                                                nodeId: item.id,
+                                                parentNodeId: item._parentId
+                                            }
+                                        }, '')
                                     }
-                                }, '')
+                                })()
                             ]),
                         //增加选择框元素
                         h(
@@ -106,11 +129,13 @@ export default {
                         h(
                             'div', {
                                 'class': {
-                                    'child_con': true
+                                    'child_con': true,
+                                    'active': item.isOpen
                                 }
                             }, (function() {
                                 let arr = [];
                                 if (item.childNode) {
+                                    //遍历 递归调用子类
                                     item.childNode.map(function(element) {
                                         arr.push(This.createNode(h, element));
                                     }, this);
@@ -126,14 +151,20 @@ export default {
             let _parent = eve.srcElement.parentNode;
             let _current = eve.srcElement;
             _parent.classList.toggle("checked_active");
+
         },
         show_down(eve) {
-            let _parent = eve.srcElement.parentNode;
-            let _current = eve.srcElement;
-            if (_parent.parentNode.children[3]) {
-                _parent.parentNode.children[3].classList.add('active');
-                _current.classList.add('expanded');
-            }
+            // let _parent = eve.srcElement.parentNode;
+            // let _current = eve.srcElement;
+            // let _currentId = eve.srcElement.nodeId;
+            // if (_parent.parentNode.children[3]) {
+            //     _parent.parentNode.children[3].classList.add('active');
+            //     _current.classList.add('expanded');
+            // }
+            //获得标签的id
+            let _currentId = eve.srcElement.getAttribute('nodeid');
+            this.findNodeAndSet(_currentId, 'isOpen', true, this.newNode);
+            console.log(_currentId);
             eve.stopPropagation();
         }
 
@@ -210,7 +241,7 @@ export default {
 .checkbox_con .child_con {
     height: 0;
     transition: height 0.6s ease-in-out;
-    padding-left: 40px;
+    padding-left: 16px;
 }
 
 .checkbox_con .child_con.active {
