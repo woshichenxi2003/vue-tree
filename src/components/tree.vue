@@ -15,8 +15,8 @@ export default {
             let newNode = [];
             let currentNode = this.node;
             this.reBuildData(currentNode, newNode);
-            console.log(newNode);
-            console.log(currentNode);
+            // console.log(newNode);
+            // console.log(currentNode);
             return newNode
         }
     },
@@ -25,7 +25,7 @@ export default {
         //数据重建方法
         reBuildData(arr, outArr) {
             arr.forEach((ele, index) => {
-                console.log(ele._parentId, ele.name);
+                // console.log(ele._parentId, ele.name);
                 if (ele._parentId == null) {
                     // 给父节点添加自定义属性 初始化只有根目录显示不打开子目录
                     // console.log(ele.name);
@@ -34,17 +34,7 @@ export default {
                     ele.isOpen = true;
                     ele.childNode = this.checkChildNode(ele.id, arr);
                     outArr.push(ele);
-                    // arr.splice(index, 1);
                 }
-                // else {
-                //     console.log('是一个子类');
-                //     ele.isShow = true;
-                //     ele.isChecked = false;
-                //     ele.isOpen = true;
-                //     ele.childNode = this.checkChildNode(ele.id, arr);
-                //     outArr.push(ele);
-                //     arr.splice(index, 1);
-                // }
             })
         },
         //找出一个id下的所有子节点的方法 ，用于在递归遍历中
@@ -59,38 +49,13 @@ export default {
                     element.isOpen = true;
                     element.childNode = this.checkChildNode(element.id, arr);
                     currentArr.push(element);
-                    console.log('为id为', element.id, '找到的子元素', element);
-
-                } else {
-                    return [];
                 }
             }, this);
-
             return currentArr;
         },
-        show(eve) {
-            let _parent = eve.srcElement.parentNode;
-            let _current = eve.srcElement;
-            _parent.classList.toggle("checked_active");
-        },
-        show_down(eve) {
-            let _parent = eve.srcElement.parentNode;
-            let _current = eve.srcElement;
-            if (_parent.parentNode.children[3]) {
-                _parent.parentNode.children[3].classList.add('active');
-                _current.classList.add('expanded');
-            }
-            eve.stopPropagation();
-        }
-
-    },
-    render: function(h) {
-        let This = this;
-        return h('div', {
-            'class': {
-                'tree_con': true
-            }
-        }, this.newTreeData.map((item) => {
+        createNode(h, item) {
+            let This = this;
+            console.log(item.name);
             if (item.isShow) {
                 return h('div', {
                     'class': {
@@ -136,10 +101,51 @@ export default {
                                     'checkbox_msg': true
                                 }
                             }, [item.name]
+                        ),
+                        //增加子元素
+                        h(
+                            'div', {
+                                'class': {
+                                    'child_con': true
+                                }
+                            }, (function() {
+                                let arr = [];
+                                if (item.childNode) {
+                                    item.childNode.map(function(element) {
+                                        arr.push(This.createNode(h, element));
+                                    }, this);
+                                }
+                                return arr
+                            })()
                         )
+
                     ])
             }
+        },
+        show(eve) {
+            let _parent = eve.srcElement.parentNode;
+            let _current = eve.srcElement;
+            _parent.classList.toggle("checked_active");
+        },
+        show_down(eve) {
+            let _parent = eve.srcElement.parentNode;
+            let _current = eve.srcElement;
+            if (_parent.parentNode.children[3]) {
+                _parent.parentNode.children[3].classList.add('active');
+                _current.classList.add('expanded');
+            }
+            eve.stopPropagation();
+        }
 
+    },
+    render: function(h) {
+        let This = this;
+        return h('div', {
+            'class': {
+                'tree_con': true
+            }
+        }, this.newTreeData.map((item) => {
+            return This.createNode(h, item);
         }))
     }
 
@@ -151,6 +157,7 @@ export default {
 }
 
 .checkbox_con {
+    padding-left: 5px;
     width: 100%;
     text-align: left;
     line-height: 30px;
@@ -170,9 +177,10 @@ export default {
 
 .checkbox_arrow_box {
     display: inline-block;
-    width: 6px;
-    height: 6px;
+    width: 12px;
+    height: 12px;
     margin-right: 5px;
+    line-height: 30px;
 }
 
 .checkbox_con .checkbox_arrow {
