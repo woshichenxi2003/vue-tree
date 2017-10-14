@@ -14,11 +14,9 @@ export default {
             //重构后的数据且初始化数据
             let newNode = [];
             let currentNode = this.node;
-            // currentNode.forEach(function(element, index) {
-            //     this.reBuildData()
-            // }, this);
             this.reBuildData(currentNode, newNode);
             console.log(newNode);
+            console.log(currentNode);
             return newNode
         }
     },
@@ -27,35 +25,47 @@ export default {
         //数据重建方法
         reBuildData(arr, outArr) {
             arr.forEach((ele, index) => {
-                if (ele._parentId === null) {
+                console.log(ele._parentId, ele.name);
+                if (ele._parentId == null) {
                     // 给父节点添加自定义属性 初始化只有根目录显示不打开子目录
+                    // console.log(ele.name);
                     ele.isShow = true;
                     ele.isChecked = false;
                     ele.isOpen = true;
                     ele.childNode = this.checkChildNode(ele.id, arr);
                     outArr.push(ele);
-                    arr.splice(index, 1);
-                } else {
-                    ele.isShow = false;
-                    ele.isChecked = false;
-                    ele.isOpen = true;
-                    ele.childNode = this.checkChildNode(ele.id, arr);
-                    outArr.push(ele);
-                    arr.splice(index, 1);
+                    // arr.splice(index, 1);
                 }
+                // else {
+                //     console.log('是一个子类');
+                //     ele.isShow = true;
+                //     ele.isChecked = false;
+                //     ele.isOpen = true;
+                //     ele.childNode = this.checkChildNode(ele.id, arr);
+                //     outArr.push(ele);
+                //     arr.splice(index, 1);
+                // }
             })
         },
         //找出一个id下的所有子节点的方法 ，用于在递归遍历中
         checkChildNode(cId, arr) {
+            let num = 0;
             let currentArr = [];
             arr.forEach(function(element, index) {
-                // console.log(element._parentId == cId);
                 if (element._parentId == cId) {
+                    //找到子元素后继续寻找子元素的子元素
+                    element.isShow = true;
+                    element.isChecked = false;
+                    element.isOpen = true;
+                    element.childNode = this.checkChildNode(element.id, arr);
                     currentArr.push(element);
-                    console.log('找到的子元素', element);
+                    console.log('为id为', element.id, '找到的子元素', element);
+
+                } else {
+                    return [];
                 }
             }, this);
-            // console.log('返回数组', currentArr);
+
             return currentArr;
         },
         show(eve) {
