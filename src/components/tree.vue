@@ -54,7 +54,6 @@ export default {
             return currentArr;
         },
         findNodeAndSet(id, key, value, arr) {
-            // console.log(id, key, value, arr)
             arr.forEach(function(element) {
                 if (element.id == id) {
                     element[key] = value;
@@ -64,12 +63,35 @@ export default {
                 }
             }, this);
         },
+        findNodeAndCheck(id, key, value, arr) {
+            arr.forEach(function(element) {
+                if (element.id == id) {
+                    element[key] = value;
+                    element.childNode.forEach(function(ele) {
+                        ele.isChecked = true;
+                        this.findAllChild('isChecked', true, ele.childNode)
+                    }, this);
+                    return
+                } else if (element.childNode.length) {
+                    this.findNodeAndCheck(id, key, value, element.childNode)
+                }
+            }, this);
+        },
+        findAllChild(key, value, arr) {
+            arr.forEach(function(element) {
+                element[key] = value;
+                if (element.childNode.length) {
+                    this.findAllChild(key, value, element.childNode);
+                }
+            }, this);
+        },
         createNode(h, item) {
             let This = this;
             if (item.isShow) {
                 return h('div', {
                     'class': {
-                        'checkbox_con': true
+                        'checkbox_con': true,
+                        'checked_active': item.isChecked
                     }
                 }, [
                         // 加入下拉箭头子元素
@@ -94,8 +116,7 @@ export default {
                                             attrs: {
                                                 nodeid: item.id,
                                                 parentnodeId: item._parentId,
-                                                isopen: item.isOpen,
-                                                ischecked: item.isChecked
+                                                isopen: item.isOpen
                                             }
                                         }, '')
                                     }
@@ -106,6 +127,12 @@ export default {
                             'i', {
                                 'class': {
                                     'checkbox_inner': true
+                                },
+                                attrs: {
+                                    nodeid: item.id,
+                                    parentnodeId: item._parentId,
+                                    isopen: item.isOpen,
+                                    ischecked: 'false'
                                 },
                                 on: {
                                     click: function(event) {
@@ -155,21 +182,29 @@ export default {
             }
         },
         show(eve) {
-            let _parent = eve.srcElement.parentNode;
-            let _current = eve.srcElement;
-            _parent.classList.toggle("checked_active");
+            let _currentId = eve.srcElement.getAttribute('nodeid');
+            let _currentIscheck = eve.srcElement.getAttribute('ischecked');
+            if (_currentIscheck == 'true') {
+                eve.srcElement.setAttribute('ischecked', 'false')
+                this.findNodeAndCheck(_currentId, 'isChecked', false, this.newNode);
+            } else {
+                eve.srcElement.setAttribute('ischecked', 'true')
+                this.findNodeAndCheck(_currentId, 'isChecked', true, this.newNode);
+            }
+            eve.stopPropagation();
 
         },
         show_down(eve) {
             let _currentId = eve.srcElement.getAttribute('nodeid');
             let _currentIsopen = eve.srcElement.getAttribute('isopen');
             //完善关闭合上
-            if (_currentIsopen === 'true') {
+            if (_currentIsopen == 'true') {
+                eve.srcElement.setAttribute('isopen', 'false')
                 this.findNodeAndSet(_currentId, 'isOpen', false, this.newNode);
             } else {
+                eve.srcElement.setAttribute('isopen', 'true')
                 this.findNodeAndSet(_currentId, 'isOpen', true, this.newNode);
             }
-
             eve.stopPropagation();
         },
         pitchOneNode(eve) {
