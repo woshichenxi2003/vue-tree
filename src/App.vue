@@ -1,6 +1,6 @@
 <template>
     <div id="app">
-        <tree :treeData="treeData" isAllOpen="true" v-on:inselectnode="selectnode"></tree>
+        <tree :treeData="treeData" isAllOpen="false" @inselectnode="selectnode"></tree>
     </div>
 </template>
 

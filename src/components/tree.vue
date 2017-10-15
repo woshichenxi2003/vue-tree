@@ -120,6 +120,11 @@ export default {
                                 'class': {
                                     'checkbox_msg': true
                                 },
+                                attrs: {
+                                    nodeid: item.id,
+                                    parentnodeId: item._parentId,
+                                    nodename: item.name,
+                                },
                                 on: {
                                     click: function(event) {
                                         This.pitchOneNode(event)
@@ -168,16 +173,15 @@ export default {
             eve.stopPropagation();
         },
         pitchOneNode(eve) {
-            console.log(123);
             let _currentId = eve.srcElement.getAttribute('nodeid');
             let _currentParent = eve.srcElement.getAttribute('parentnodeId');
-            let _currentName = eve.srcElement.innerHtml;
+            let _currentName = eve.srcElement.getAttribute('nodename');
             let obj = {
                 _currentId,
                 _currentParent,
                 _currentName
             }
-            this.$emit('increment', obj)
+            this.$emit('inselectnode', obj)
         }
 
     },
@@ -253,6 +257,7 @@ export default {
     display: inline-block;
     vertical-align: middle;
     margin-left: 5px;
+    cursor: pointer;
 }
 
 .checkbox_con .child_con {
