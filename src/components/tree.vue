@@ -5,43 +5,37 @@ export default {
     components: {},
     data() {
         return {
-            node: this.treeData,
-            newNode: []
+            newNode: this.reBuildData(this.treeData)
         }
 
     },
-    computed: {
-        newTreeData() {
-            //重构后的数据且初始化数据
-            // let newNode = [];
-            //深度复制node给currentNode
-            let currentNode = this.copeArr(this.node);
-            this.reBuildData(currentNode, this.newNode);
-            return this.newNode
+    props: {
+        treeData: Array,
+        isMultiple: {
+            type: String,
+            default: 'false'
+        },
+        isAllOpen: {
+            type: String,
+            default: 'false'
         }
     },
-    props: ['treeData', 'isMultiple'],
     methods: {
-        //深度赋值node数组的方法
-        copeArr(arr) {
-            let newArr = [];
-            arr.forEach(function(element) {
-                newArr.push(JSON.parse(JSON.stringify(element)));
-            }, this);
-            return newArr
-        },
         //数据重建方法
-        reBuildData(arr, outArr) {
+        reBuildData(arr) {
+            var newArr = [];
             arr.forEach((ele, index) => {
                 if (ele._parentId == null) {
                     // 给父节点添加自定义属性 初始化只有根目录显示不打开子目录
-                    ele.isShow = true;
-                    ele.isChecked = false;
-                    ele.isOpen = false;
-                    ele.childNode = this.checkChildNode(ele.id, arr);
-                    outArr.push(JSON.parse(JSON.stringify(ele)));
+                    this.$set(ele, 'isShow', true);
+                    this.$set(ele, 'isChecked', false);
+                    this.isAllOpen == 'true' ? this.$set(ele, 'isOpen', true) : this.$set(ele, 'isOpen', false);
+                    this.$set(ele, 'childNode', this.checkChildNode(ele.id, arr));
+                    newArr.push(ele);
                 }
-            })
+            }, this)
+
+            return newArr
         },
         //找出一个id下的所有子节点的方法 ，用于在递归遍历中
         checkChildNode(cId, arr) {
@@ -50,17 +44,17 @@ export default {
             arr.forEach(function(element, index) {
                 if (element._parentId == cId) {
                     //找到子元素后继续寻找子元素的子元素
-                    element.isShow = true;
-                    element.isChecked = false;
-                    element.isOpen = false;
-                    element.childNode = this.checkChildNode(element.id, arr);
-                    currentArr.push(JSON.parse(JSON.stringify(element)));
+                    this.isAllOpen == 'true' ? this.$set(element, 'isOpen', true) : this.$set(element, 'isOpen', false);
+                    this.$set(element, 'isChecked', false);
+                    this.$set(element, 'isShow', true);
+                    this.$set(element, 'childNode', this.checkChildNode(element.id, arr));
+                    currentArr.push(element);
                 }
             }, this);
             return currentArr;
         },
         findNodeAndSet(id, key, value, arr) {
-            console.log(id, key, value, arr)
+            // console.log(id, key, value, arr)
             arr.forEach(function(element) {
                 if (element.id == id) {
                     element[key] = value;
@@ -94,11 +88,14 @@ export default {
                                     if (item.childNode.length) {
                                         return h('i', {
                                             'class': {
-                                                'checkbox_arrow': true
+                                                'checkbox_arrow': true,
+                                                'expanded': item.isOpen
                                             },
                                             attrs: {
-                                                nodeId: item.id,
-                                                parentNodeId: item._parentId
+                                                nodeid: item.id,
+                                                parentnodeId: item._parentId,
+                                                isopen: item.isOpen,
+                                                ischecked: item.isChecked
                                             }
                                         }, '')
                                     }
@@ -122,6 +119,11 @@ export default {
                             'span', {
                                 'class': {
                                     'checkbox_msg': true
+                                },
+                                on: {
+                                    click: function(event) {
+                                        This.pitchOneNode(event)
+                                    }
                                 }
                             }, [item.name]
                         ),
@@ -154,30 +156,45 @@ export default {
 
         },
         show_down(eve) {
-            // let _parent = eve.srcElement.parentNode;
-            // let _current = eve.srcElement;
-            // let _currentId = eve.srcElement.nodeId;
-            // if (_parent.parentNode.children[3]) {
-            //     _parent.parentNode.children[3].classList.add('active');
-            //     _current.classList.add('expanded');
-            // }
-            //获得标签的id
             let _currentId = eve.srcElement.getAttribute('nodeid');
-            this.findNodeAndSet(_currentId, 'isOpen', true, this.newNode);
-            console.log(_currentId);
+            let _currentIsopen = eve.srcElement.getAttribute('isopen');
+            //完善关闭合上
+            if (_currentIsopen === 'true') {
+                this.findNodeAndSet(_currentId, 'isOpen', false, this.newNode);
+            } else {
+                this.findNodeAndSet(_currentId, 'isOpen', true, this.newNode);
+            }
+
             eve.stopPropagation();
+        },
+        pitchOneNode(eve) {
+            console.log(123);
+            let _currentId = eve.srcElement.getAttribute('nodeid');
+            let _currentParent = eve.srcElement.getAttribute('parentnodeId');
+            let _currentName = eve.srcElement.innerHtml;
+            let obj = {
+                _currentId,
+                _currentParent,
+                _currentName
+            }
+            this.$emit('increment', obj)
         }
 
     },
     render: function(h) {
         let This = this;
+        window.newNode = this.newNode;
         return h('div', {
             'class': {
                 'tree_con': true
+            },
+            attrs: {
+                onselectstart: "javascript:return false;"
             }
-        }, this.newTreeData.map((item) => {
+        }, this.newNode.map((item) => {
             return This.createNode(h, item);
         }))
+
     }
 
 }
@@ -240,7 +257,7 @@ export default {
 
 .checkbox_con .child_con {
     height: 0;
-    transition: height 0.6s ease-in-out;
+    transition: height 0.3s ease-in-out;
     padding-left: 16px;
 }
 
