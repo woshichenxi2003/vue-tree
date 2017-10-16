@@ -68,8 +68,8 @@ export default {
                 if (element.id == id) {
                     element[key] = value;
                     element.childNode.forEach(function(ele) {
-                        ele.isChecked = true;
-                        this.findAllChild('isChecked', true, ele.childNode)
+                        ele.isChecked = value;
+                        this.findAllChild('isChecked', value, ele.childNode)
                     }, this);
                     return
                 } else if (element.childNode.length) {
