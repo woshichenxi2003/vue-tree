@@ -18,6 +18,10 @@ export default {
         isAllOpen: {
             type: String,
             default: 'false'
+        },
+        isShowcheck: {
+            type: String,
+            default: 'true'
         }
     },
     methods: {
@@ -127,25 +131,48 @@ export default {
                                         })()
                                     ]),
                                 //增加选择框元素
-                                h(
-                                    'i', {
-                                        'class': {
-                                            'checkbox_inner': true,
-                                            'checked_active': item.isChecked
-                                        },
-                                        attrs: {
-                                            nodeid: item.id,
-                                            parentnodeId: item._parentId,
-                                            isopen: item.isOpen,
-                                            ischecked: 'false'
-                                        },
-                                        on: {
-                                            click: function(event) {
-                                                This.show(event)
-                                            }
-                                        }
-                                    }, ''
-                                ),
+                                (function() {
+                                    if (This.isShowcheck == 'true') {
+                                        return h(
+                                            'i', {
+                                                'class': {
+                                                    'checkbox_inner': true,
+                                                    'checked_active': item.isChecked
+                                                },
+                                                attrs: {
+                                                    nodeid: item.id,
+                                                    parentnodeId: item._parentId,
+                                                    isopen: item.isOpen,
+                                                    ischecked: 'false'
+                                                },
+                                                on: {
+                                                    click: function(event) {
+                                                        This.show(event)
+                                                    }
+                                                }
+                                            }, ''
+                                        )
+                                    }
+                                })(),
+                                // h(
+                                //     'i', {
+                                //         'class': {
+                                //             'checkbox_inner': true,
+                                //             'checked_active': item.isChecked
+                                //         },
+                                //         attrs: {
+                                //             nodeid: item.id,
+                                //             parentnodeId: item._parentId,
+                                //             isopen: item.isOpen,
+                                //             ischecked: 'false'
+                                //         },
+                                //         on: {
+                                //             click: function(event) {
+                                //                 This.show(event)
+                                //             }
+                                //         }
+                                //     }, ''
+                                // ),
                                 //增加msg显示元素
                                 h(
                                     'span', {

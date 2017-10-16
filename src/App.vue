@@ -1,6 +1,6 @@
 <template>
     <div id="app">
-        <tree :treeData="treeData" isAllOpen="true" @inselectnode="selectnode"></tree>
+        <tree :treeData="treeData" isAllOpen="true" @inselectnode="selectnode" isShowcheck="false"></tree>
     </div>
 </template>
 
