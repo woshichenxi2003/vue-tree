@@ -60,6 +60,7 @@ export default {
             arr.forEach(function(element) {
                 if (element.id == id) {
                     element[key] = value;
+                    this.$emit('inpulldown', JSON.parse(JSON.stringify(element)), value)
                     return
                 } else if (element.childNode.length) {
                     this.findNodeAndSet(id, key, value, element.childNode)
@@ -147,32 +148,13 @@ export default {
                                                 },
                                                 on: {
                                                     click: function(event) {
-                                                        This.show(event)
+                                                        This.checkedNode(event)
                                                     }
                                                 }
                                             }, ''
                                         )
                                     }
                                 })(),
-                                // h(
-                                //     'i', {
-                                //         'class': {
-                                //             'checkbox_inner': true,
-                                //             'checked_active': item.isChecked
-                                //         },
-                                //         attrs: {
-                                //             nodeid: item.id,
-                                //             parentnodeId: item._parentId,
-                                //             isopen: item.isOpen,
-                                //             ischecked: 'false'
-                                //         },
-                                //         on: {
-                                //             click: function(event) {
-                                //                 This.show(event)
-                                //             }
-                                //         }
-                                //     }, ''
-                                // ),
                                 //增加msg显示元素
                                 h(
                                     'span', {
@@ -214,7 +196,7 @@ export default {
                     ])
             }
         },
-        show(eve) {
+        checkedNode(eve) {
             let _currentId = eve.srcElement.getAttribute('nodeid');
             let _currentIscheck = eve.srcElement.getAttribute('ischecked');
             if (_currentIscheck == 'true') {
@@ -232,24 +214,32 @@ export default {
             let _currentIsopen = eve.srcElement.getAttribute('isopen');
             //完善关闭合上
             if (_currentIsopen == 'true') {
-                eve.srcElement.setAttribute('isopen', 'false')
+                eve.srcElement.setAttribute('isopen', 'false');
                 this.findNodeAndSet(_currentId, 'isOpen', false, this.newNode);
             } else {
                 eve.srcElement.setAttribute('isopen', 'true')
                 this.findNodeAndSet(_currentId, 'isOpen', true, this.newNode);
             }
+
+
             eve.stopPropagation();
+        },
+        findNodeAndreturn(cid, arr) {
+            let _currentObj;
+            arr.forEach(function(element) {
+                if (element.id == cid) {
+                    _currentObj = element;
+                }
+            }, this);
+            return _currentObj;
         },
         pitchOneNode(eve) {
             let _currentId = eve.srcElement.getAttribute('nodeid');
-            let _currentParent = eve.srcElement.getAttribute('parentnodeId');
-            let _currentName = eve.srcElement.getAttribute('nodename');
-            let obj = {
-                _currentId,
-                _currentParent,
-                _currentName
-            }
-            this.$emit('inselectnode', obj)
+            let ele = this.findNodeAndreturn(_currentId, this.treeData)
+            //触发自定义函数 将找出对象返回
+            // this.$emit('inselectnode', ele)  //将原始对象传出外部可以修改相应数据变化
+            this.$emit('inselectnode', JSON.parse(JSON.stringify(ele)))
+            //传出数据深度复制的对象 外部修改内部不会响应数据
         }
 
     },
