@@ -255,6 +255,7 @@ export default {
     text-align: left;
     line-height: 30px;
     overflow: hidden;
+    font-size: 14px;
 }
 
 .msg_box {
@@ -275,9 +276,8 @@ export default {
 .checkbox_arrow_box {
     display: inline-block;
     width: 12px;
-    height: 12px;
     margin-right: 5px;
-    line-height: 30px;
+    line-height: 27px;
 }
 
 .checkbox_con .checkbox_arrow {
@@ -307,9 +307,11 @@ export default {
 }
 
 .checkbox_con .child_con {
+    /* width: 94%; */
     height: 0;
     transition: height 0.3s ease-in-out;
     padding-left: 16px;
+    padding-right: 6px;
 }
 
 .checkbox_con .child_con.active {
