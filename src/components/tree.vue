@@ -39,7 +39,6 @@ export default {
         },
         //找出一个id下的所有子节点的方法 ，用于在递归遍历中
         checkChildNode(cId, arr) {
-            let num = 0;
             let currentArr = [];
             arr.forEach(function(element, index) {
                 if (element._parentId == cId) {
@@ -90,76 +89,83 @@ export default {
             if (item.isShow) {
                 return h('div', {
                     'class': {
-                        'checkbox_con': true,
-                        'checked_active': item.isChecked
+                        'checkbox_con': true
                     }
                 }, [
-                        // 加入下拉箭头子元素
-                        h('span', {
-                            'class': {
-                                'checkbox_arrow_box': true
-                            },
-                            on: {
-                                click: function(event) {
-                                    This.show_down(event)
-                                }
+                        h(
+                            'div', {
+                                'class': {
+                                    'msg_box': true
+                                },
+                            }, [
+                                // 加入下拉箭头子元素
+                                h('span', {
+                                    'class': {
+                                        'checkbox_arrow_box': true
+                                    },
+                                    on: {
+                                        click: function(event) {
+                                            This.show_down(event)
+                                        }
 
-                            }
-                        }, [
-                                (function() {
-                                    if (item.childNode.length) {
-                                        return h('i', {
-                                            'class': {
-                                                'checkbox_arrow': true,
-                                                'expanded': item.isOpen
-                                            },
-                                            attrs: {
-                                                nodeid: item.id,
-                                                parentnodeId: item._parentId,
-                                                isopen: item.isOpen
+                                    }
+                                }, [
+                                        (function() {
+                                            if (item.childNode.length) {
+                                                return h('i', {
+                                                    'class': {
+                                                        'checkbox_arrow': true,
+                                                        'expanded': item.isOpen
+                                                    },
+                                                    attrs: {
+                                                        nodeid: item.id,
+                                                        parentnodeId: item._parentId,
+                                                        isopen: item.isOpen
+                                                    }
+                                                }, '')
                                             }
-                                        }, '')
-                                    }
-                                })()
-                            ]),
-                        //增加选择框元素
-                        h(
-                            'i', {
-                                'class': {
-                                    'checkbox_inner': true
-                                },
-                                attrs: {
-                                    nodeid: item.id,
-                                    parentnodeId: item._parentId,
-                                    isopen: item.isOpen,
-                                    ischecked: 'false'
-                                },
-                                on: {
-                                    click: function(event) {
-                                        This.show(event)
-                                    }
-                                }
-                            }, ''
+                                        })()
+                                    ]),
+                                //增加选择框元素
+                                h(
+                                    'i', {
+                                        'class': {
+                                            'checkbox_inner': true,
+                                            'checked_active': item.isChecked
+                                        },
+                                        attrs: {
+                                            nodeid: item.id,
+                                            parentnodeId: item._parentId,
+                                            isopen: item.isOpen,
+                                            ischecked: 'false'
+                                        },
+                                        on: {
+                                            click: function(event) {
+                                                This.show(event)
+                                            }
+                                        }
+                                    }, ''
+                                ),
+                                //增加msg显示元素
+                                h(
+                                    'span', {
+                                        'class': {
+                                            'checkbox_msg': true
+                                        },
+                                        attrs: {
+                                            nodeid: item.id,
+                                            parentnodeId: item._parentId,
+                                            nodename: item.name,
+                                        },
+                                        on: {
+                                            click: function(event) {
+                                                This.pitchOneNode(event)
+                                            }
+                                        }
+                                    }, [item.name]
+                                ),
+                            ]
                         ),
-                        //增加msg显示元素
-                        h(
-                            'span', {
-                                'class': {
-                                    'checkbox_msg': true
-                                },
-                                attrs: {
-                                    nodeid: item.id,
-                                    parentnodeId: item._parentId,
-                                    nodename: item.name,
-                                },
-                                on: {
-                                    click: function(event) {
-                                        This.pitchOneNode(event)
-                                    }
-                                }
-                            }, [item.name]
-                        ),
-                        //增加子元素
                         h(
                             'div', {
                                 'class': {
@@ -249,7 +255,10 @@ export default {
     text-align: left;
     line-height: 30px;
     overflow: hidden;
-    /* cursor: pointer; */
+}
+
+.msg_box {
+    display: flex;
 }
 
 .checkbox_con .checkbox_inner {
@@ -260,6 +269,7 @@ export default {
     border-radius: 25%;
     vertical-align: middle;
     cursor: pointer;
+    margin-top: 7px;
 }
 
 .checkbox_arrow_box {
@@ -293,6 +303,7 @@ export default {
     vertical-align: middle;
     margin-left: 5px;
     cursor: pointer;
+    flex: 1;
 }
 
 .checkbox_con .child_con {
@@ -305,12 +316,12 @@ export default {
     height: auto;
 }
 
-.checkbox_con.checked_active>.checkbox_inner {
+.checkbox_con .checkbox_inner.checked_active {
     border: 2px solid #1a97db;
     border-radius: 25%;
 }
 
-.checkbox_con.checked_active>.checkbox_inner:before {
+.checkbox_con .checkbox_inner.checked_active:before {
     position: relative;
     top: 0px;
     left: 0;

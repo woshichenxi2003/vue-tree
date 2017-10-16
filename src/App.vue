@@ -7,6 +7,7 @@
 <script>
 import tree from "./components/tree";
 import { treeData } from '../static/data';
+window.treeData = treeData;
 export default {
     name: 'app',
     data() {
