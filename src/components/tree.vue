@@ -67,28 +67,6 @@ export default {
                 }
             }, this);
         },
-        findNodeAndCheck(id, key, value, arr) {
-            arr.forEach(function(element) {
-                if (element.id == id) {
-                    element[key] = value;
-                    element.childNode.forEach(function(ele) {
-                        ele.isChecked = value;
-                        this.findAllChild('isChecked', value, ele.childNode)
-                    }, this);
-                    return
-                } else if (element.childNode.length) {
-                    this.findNodeAndCheck(id, key, value, element.childNode)
-                }
-            }, this);
-        },
-        findAllChild(key, value, arr) {
-            arr.forEach(function(element) {
-                element[key] = value;
-                if (element.childNode.length) {
-                    this.findAllChild(key, value, element.childNode);
-                }
-            }, this);
-        },
         createNode(h, item) {
             let This = this;
             if (item.isShow) {
@@ -199,15 +177,47 @@ export default {
         checkedNode(eve) {
             let _currentId = eve.srcElement.getAttribute('nodeid');
             let _currentIscheck = eve.srcElement.getAttribute('ischecked');
+            let _childconArr = eve.srcElement.parentNode.nextSibling.childNodes
+            function _childNodeCheck(type) {
+                _childconArr.forEach(function(element) {
+                    element.firstChild.childNodes[1].setAttribute('ischecked', type)
+                }, this);
+            }
             if (_currentIscheck == 'true') {
                 eve.srcElement.setAttribute('ischecked', 'false')
+                //其子页面上的子元素也跟着变化
+                _childNodeCheck('false');
                 this.findNodeAndCheck(_currentId, 'isChecked', false, this.newNode);
             } else {
                 eve.srcElement.setAttribute('ischecked', 'true')
+                //其子页面上的子元素也跟着变化
+                _childNodeCheck('true');
                 this.findNodeAndCheck(_currentId, 'isChecked', true, this.newNode);
             }
             eve.stopPropagation();
 
+        },
+        findNodeAndCheck(id, key, value, arr) {
+            arr.forEach(function(element) {
+                if (element.id == id) {
+                    element[key] = value;
+                    element.childNode.forEach(function(ele) {
+                        ele.isChecked = value;
+                        this.findAllChild('isChecked', value, ele.childNode)
+                    }, this);
+                    return
+                } else if (element.childNode.length) {
+                    this.findNodeAndCheck(id, key, value, element.childNode)
+                }
+            }, this);
+        },
+        findAllChild(key, value, arr) {
+            arr.forEach(function(element) {
+                element[key] = value;
+                if (element.childNode.length) {
+                    this.findAllChild(key, value, element.childNode);
+                }
+            }, this);
         },
         show_down(eve) {
             let _currentId = eve.srcElement.getAttribute('nodeid');
