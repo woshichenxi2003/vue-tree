@@ -56,17 +56,7 @@ export default {
             }, this);
             return currentArr;
         },
-        findNodeAndSet(id, key, value, arr) {
-            arr.forEach(function(element) {
-                if (element.id == id) {
-                    element[key] = value;
-                    this.$emit('inpulldown', JSON.parse(JSON.stringify(element)), value)
-                    return
-                } else if (element.childNode.length) {
-                    this.findNodeAndSet(id, key, value, element.childNode)
-                }
-            }, this);
-        },
+
         createNode(h, item) {
             let This = this;
             if (item.isShow) {
@@ -85,12 +75,6 @@ export default {
                                 h('span', {
                                     'class': {
                                         'checkbox_arrow_box': true
-                                    },
-                                    on: {
-                                        click: function(event) {
-                                            This.show_down(event)
-                                        }
-
                                     }
                                 }, [
                                         (function() {
@@ -100,10 +84,14 @@ export default {
                                                         'checkbox_arrow': true,
                                                         'expanded': item.isOpen
                                                     },
-                                                    attrs: {
-                                                        nodeid: item.id,
-                                                        parentnodeId: item._parentId,
-                                                        isopen: item.isOpen
+                                                    domProps: {
+                                                        linkData: item
+                                                    },
+                                                    on: {
+                                                        click: function(event) {
+                                                            This.show_down(event)
+                                                        }
+
                                                     }
                                                 }, '')
                                             }
@@ -118,11 +106,8 @@ export default {
                                                     'checkbox_inner': true,
                                                     'checked_active': item.isChecked
                                                 },
-                                                attrs: {
-                                                    nodeid: item.id,
-                                                    parentnodeId: item._parentId,
-                                                    isopen: item.isOpen,
-                                                    ischecked: 'false'
+                                                domProps: {
+                                                    linkData: item
                                                 },
                                                 on: {
                                                     click: function(event) {
@@ -139,10 +124,8 @@ export default {
                                         'class': {
                                             'checkbox_msg': true
                                         },
-                                        attrs: {
-                                            nodeid: item.id,
-                                            parentnodeId: item._parentId,
-                                            nodename: item.name,
+                                        domProps: {
+                                            linkData: item
                                         },
                                         on: {
                                             click: function(event) {
@@ -174,82 +157,83 @@ export default {
                     ])
             }
         },
-        checkedNode(eve) {
-            let _currentId = eve.srcElement.getAttribute('nodeid');
-            let _currentIscheck = eve.srcElement.getAttribute('ischecked');
-            let _childconArr = eve.srcElement.parentNode.nextSibling.childNodes
-            function _childNodeCheck(type) {
-                _childconArr.forEach(function(element) {
-                    element.firstChild.childNodes[1].setAttribute('ischecked', type)
+        judgmentParentNode(cid, type) {
+            //判断父级下面的子集是否都是关闭的 如果都关闭了 取消父级的选中
+            if (cid != null) {
+                //建一个变量等待缓存找出的node节点
+                let currentNode = {};
+                //循环整个数据找出id为cid的节点
+                this.treeData.forEach(function(element) {
+                    if (element.id == cid) {
+                        currentNode = element;
+                    }
                 }, this);
-            }
-            if (_currentIscheck == 'true') {
-                eve.srcElement.setAttribute('ischecked', 'false')
-                //其子页面上的子元素也跟着变化
-                _childNodeCheck('false');
-                this.findNodeAndCheck(_currentId, 'isChecked', false, this.newNode);
+                //判断节点是否有子节点 有子节点的情况下判断 所有子节点是否都已经关闭
+                if (currentNode.childNode.length) {
+                    //如果是选中 父级直接勾选 并且递归  如果是取消勾选 需判断父级是否所有子类都已经取消勾选
+                    if (type == true) {
+                        currentNode.isChecked = type;
+                        this.judgmentParentNode(currentNode._parentId, type);
+                    } else {
+                        let currentNum = 0; //计数
+                        currentNode.childNode.forEach(function(element) {
+                            (element.isChecked == type) && currentNum++
+                        }, this);
+                        if (currentNode.childNode.length == currentNum) {
+                            currentNode.isChecked = type;
+                            //如果自己关闭了 还得去检查父级是否关闭了
+                            this.judgmentParentNode(currentNode._parentId, type);
+                        }
+                    }
+                }
             } else {
-                eve.srcElement.setAttribute('ischecked', 'true')
-                //其子页面上的子元素也跟着变化
-                _childNodeCheck('true');
-                this.findNodeAndCheck(_currentId, 'isChecked', true, this.newNode);
+                return
             }
+        },
+        recheckedchildNode() {
+            let currentArr = [];
+            this.treeData.forEach(function(element) {
+                if (element.childNode.length == 0) {
+                    if (element.isChecked) {
+                        currentArr.push(JSON.parse(JSON.stringify(element)))
+                    }
+                }
+                // (element.childNode.length == 0) && element.isChecked && currentArr.push(JSON.parse(JSON.stringify(element)))
+            }, this);
+            return currentArr;
+        },
+        checkedNode(eve) {
+            let linkData = eve.srcElement.linkData;
+            //控制子元素同步
+            this.findNodeAndSet('isChecked', !linkData.isChecked, linkData.childNode);
+            linkData.isChecked = !linkData.isChecked
+            // 判断父元素是否所有子节点都已经关闭或者开启 需递归
+            this.judgmentParentNode(linkData._parentId, linkData.isChecked);
+            //向外发送事件
+            //筛选所有选中的子节点
+
+            this.$emit('incheckednode', this.recheckedchildNode());
             eve.stopPropagation();
 
         },
-        findNodeAndCheck(id, key, value, arr) {
-            arr.forEach(function(element) {
-                if (element.id == id) {
-                    element[key] = value;
-                    element.childNode.forEach(function(ele) {
-                        ele.isChecked = value;
-                        this.findAllChild('isChecked', value, ele.childNode)
-                    }, this);
-                    return
-                } else if (element.childNode.length) {
-                    this.findNodeAndCheck(id, key, value, element.childNode)
-                }
-            }, this);
-        },
-        findAllChild(key, value, arr) {
+        //修改后的递归子节点赋值方法
+        findNodeAndSet(key, value, arr) {
             arr.forEach(function(element) {
                 element[key] = value;
                 if (element.childNode.length) {
-                    this.findAllChild(key, value, element.childNode);
+                    this.findNodeAndSet(key, value, element.childNode)
                 }
             }, this);
         },
         show_down(eve) {
-            let _currentId = eve.srcElement.getAttribute('nodeid');
-            let _currentIsopen = eve.srcElement.getAttribute('isopen');
-            //完善关闭合上
-            if (_currentIsopen == 'true') {
-                eve.srcElement.setAttribute('isopen', 'false');
-                this.findNodeAndSet(_currentId, 'isOpen', false, this.newNode);
-            } else {
-                eve.srcElement.setAttribute('isopen', 'true')
-                this.findNodeAndSet(_currentId, 'isOpen', true, this.newNode);
-            }
-
-
+            let linData = eve.srcElement.linkData;
+            this.$emit('inpulldown', JSON.parse(JSON.stringify(linData)), !linData.isOpen);
+            linData.isOpen = !linData.isOpen
             eve.stopPropagation();
         },
-        findNodeAndreturn(cid, arr) {
-            let _currentObj;
-            arr.forEach(function(element) {
-                if (element.id == cid) {
-                    _currentObj = element;
-                }
-            }, this);
-            return _currentObj;
-        },
         pitchOneNode(eve) {
-            let _currentId = eve.srcElement.getAttribute('nodeid');
-            let ele = this.findNodeAndreturn(_currentId, this.treeData)
-            //触发自定义函数 将找出对象返回
-            // this.$emit('inselectnode', ele)  //将原始对象传出外部可以修改相应数据变化
-            this.$emit('inselectnode', JSON.parse(JSON.stringify(ele)))
-            //传出数据深度复制的对象 外部修改内部不会响应数据
+            let linkData = eve.srcElement.linkData;
+            this.$emit('inselectnode', JSON.parse(JSON.stringify(linkData)))
         }
 
     },
@@ -304,7 +288,7 @@ export default {
     display: inline-block;
     width: 12px;
     margin-right: 5px;
-    line-height: 27px;
+    line-height: 28px;
 }
 
 .checkbox_con .checkbox_arrow {
