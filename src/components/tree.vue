@@ -116,6 +116,25 @@ export default {
                                                 }
                                             }, ''
                                         )
+                                    } else {
+                                        if (item.childNode.length == 0) {
+                                            return h(
+                                                'i', {
+                                                    'class': {
+                                                        'checkbox_inner': true,
+                                                        'checked_active': item.isChecked
+                                                    },
+                                                    domProps: {
+                                                        linkData: item
+                                                    },
+                                                    on: {
+                                                        click: function(event) {
+                                                            This.checkedNode(event)
+                                                        }
+                                                    }
+                                                }, ''
+                                            )
+                                        }
                                     }
                                 })(),
                                 //增加msg显示元素

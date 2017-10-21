@@ -6,30 +6,29 @@
 
 <script>
 import tree from "./components/tree";
-import { treeData } from '../static/data';
+import { treeData } from "../static/data";
 export default {
-    name: 'app',
-    data() {
-        return {
-            treeData
-        }
+  name: "app",
+  data() {
+    return {
+      treeData
+    };
+  },
+  components: {
+    tree
+  },
+  methods: {
+    selectnode(obj) {
+      console.log(obj);
     },
-    components: {
-        tree
+    pulldown(obj, type) {
+      console.log(obj, type);
     },
-    methods: {
-        selectnode(obj) {
-            console.log(obj);
-        },
-        pulldown(obj, type) {
-            console.log(obj, type);
-        },
-        checkednode(arr) {
-            console.log(arr);
-        }
+    checkednode(arr) {
+      console.log(arr);
     }
-
-}
+  }
+};
 </script>
 
 <style>
