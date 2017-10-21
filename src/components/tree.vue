@@ -31,6 +31,7 @@ export default {
           // 给父节点添加自定义属性 初始化只有根目录显示不打开子目录
           this.$set(ele, "isShow", true);
           this.$set(ele, "isChecked", false);
+          this.$set(ele, "ishalfChecked", false);
           this.isAllOpen == "true"
             ? this.$set(ele, "isOpen", true)
             : this.$set(ele, "isOpen", false);
@@ -51,6 +52,7 @@ export default {
             ? this.$set(element, "isOpen", true)
             : this.$set(element, "isOpen", false);
           this.$set(element, "isChecked", false);
+          this.$set(element, "ishalfChecked", false);
           this.$set(element, "isShow", true);
           this.$set(element, "childNode", this.checkChildNode(element.id, arr));
           currentArr.push(element);
@@ -119,7 +121,8 @@ export default {
                       {
                         class: {
                           checkbox_inner: true,
-                          checked_active: item.isChecked
+                          checked_active: item.isChecked,
+                          checked_half: item.ishalfChecked
                         },
                         domProps: {
                           linkData: item
@@ -213,16 +216,39 @@ export default {
         if (currentNode.childNode.length) {
           //如果是选中 父级直接勾选 并且递归  如果是取消勾选 需判断父级是否所有子类都已经取消勾选
           if (type == true) {
-            currentNode.isChecked = type;
-            this.judgmentParentNode(currentNode._parentId, type);
-          } else {
             let currentNum = 0; //计数
             currentNode.childNode.forEach(function(element) {
               element.isChecked == type && currentNum++;
             }, this);
             if (currentNode.childNode.length == currentNum) {
               currentNode.isChecked = type;
+              //如果是全部开启了，解除半选状态
+              currentNode.ishalfChecked = false;
+              //如果自己开启了 还得去检查父级是否开启了
+              this.judgmentParentNode(currentNode._parentId, type);
+            } else {
+              currentNode.isChecked = type;
+              //如果不是全部开启了 启动半选状态
+              currentNode.ishalfChecked = true;
+              //如果自己开启了 还得去检查父级是否开启了
+              this.judgmentParentNode(currentNode._parentId, type);
+            }
+          } else {
+            let currentNum = 0; //计数
+            currentNode.childNode.forEach(function(element) {
+              element.isChecked == type && currentNum++;
+            }, this);
+            if (currentNode.childNode.length == currentNum) {
+              //去掉选择状态
+              currentNode.isChecked = type;
+              //如果全部关闭了 去掉半选状态
+              currentNode.ishalfChecked = false;
               //如果自己关闭了 还得去检查父级是否关闭了
+              this.judgmentParentNode(currentNode._parentId, type);
+            } else {
+              //如果不是全部被关闭了
+              currentNode.isChecked = true;
+              currentNode.ishalfChecked = true;
               this.judgmentParentNode(currentNode._parentId, type);
             }
           }
@@ -239,18 +265,19 @@ export default {
             currentArr.push(JSON.parse(JSON.stringify(element)));
           }
         }
-        // (element.childNode.length == 0) && element.isChecked && currentArr.push(JSON.parse(JSON.stringify(element)))
       }, this);
       return currentArr;
     },
+    //取消所有节点
     cancelAllNodeChecked() {
-      console.log(1111);
       this.treeData.forEach(function(element) {
         element.isChecked = false;
       }, this);
     },
     checkedNode(eve) {
       let linkData = eve.srcElement.linkData;
+      //解除半选状态
+      linkData.ishalfChecked = false;
       if (this.isShowcheck == "false" && this.isMultiple == "false") {
         let currentChecked = linkData.isChecked;
         //所有元素取消勾选
@@ -258,7 +285,7 @@ export default {
         //被点击元素变换状态
         linkData.isChecked = !currentChecked;
         //发送事件
-        this.$emit("incheckednode", this.recheckedchildNode());
+        this.$emit("incheckednode", this.recheckedchildNode()[0]);
       } else {
         //多选情况
         //控制子元素同步
@@ -410,6 +437,18 @@ export default {
   content: "";
   font-weight: bold;
   background: url("../assets/tick.png") center no-repeat;
+  background-size: 100% auto;
+}
+.checkbox_con .checkbox_inner.checked_active.checked_half:before {
+  position: relative;
+  top: 0px;
+  left: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  content: "";
+  font-weight: bold;
+  background: url("../assets/line.png") center no-repeat;
   background-size: 100% auto;
 }
 </style>
