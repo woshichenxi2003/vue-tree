@@ -227,7 +227,7 @@ export default {
               //如果自己开启了 还得去检查父级是否开启了
               this.judgmentParentNode(currentNode._parentId, type);
             } else {
-              currentNode.isChecked = type;
+              currentNode.isChecked = true;
               //如果不是全部开启了 启动半选状态
               currentNode.ishalfChecked = true;
               //如果自己开启了 还得去检查父级是否开启了
