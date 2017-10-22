@@ -10,16 +10,16 @@ export default {
   props: {
     treeData: Array,
     isMultiple: {
-      type: String,
-      default: "ture"
+      type: Boolean,
+      default: true
     },
     isAllOpen: {
-      type: String,
-      default: "false"
+      type: Boolean,
+      default: false
     },
     isShowcheck: {
-      type: String,
-      default: "true"
+      type: Boolean,
+      default: true
     }
   },
   methods: {
@@ -32,7 +32,7 @@ export default {
           this.$set(ele, "isShow", true);
           this.$set(ele, "isChecked", false);
           this.$set(ele, "ishalfChecked", false);
-          this.isAllOpen == "true"
+          this.isAllOpen == true
             ? this.$set(ele, "isOpen", true)
             : this.$set(ele, "isOpen", false);
           this.$set(ele, "childNode", this.checkChildNode(ele.id, arr));
@@ -48,7 +48,7 @@ export default {
       arr.forEach(function(element, index) {
         if (element._parentId == cId) {
           //找到子元素后继续寻找子元素的子元素
-          this.isAllOpen == "true"
+          this.isAllOpen == true
             ? this.$set(element, "isOpen", true)
             : this.$set(element, "isOpen", false);
           this.$set(element, "isChecked", false);
@@ -115,7 +115,7 @@ export default {
                 ),
                 //增加选择框元素
                 (function() {
-                  if (This.isShowcheck == "true") {
+                  if (This.isShowcheck == true) {
                     return h(
                       "i",
                       {
@@ -276,7 +276,7 @@ export default {
       let linkData = eve.srcElement.linkData;
       //解除半选状态
       linkData.ishalfChecked = false;
-      if (this.isShowcheck == "false" && this.isMultiple == "false") {
+      if (this.isShowcheck == false && this.isMultiple == false) {
         let currentChecked = linkData.isChecked;
         //所有元素取消勾选
         this.cancelAllNodeChecked();

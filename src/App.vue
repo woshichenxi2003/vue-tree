@@ -1,12 +1,12 @@
 <template>
     <div id="app">
         <tree :treeData="treeData"
-        isAllOpen="true"
+        :isAllOpen="true"
         @inselectnode="selectnode"
         @inpulldown="pulldown"
         @incheckednode="checkednode"
-        isShowcheck="true"
-        isMultiple="true"></tree>
+        :isShowcheck="true"
+        :isMultiple="true"></tree>
     </div>
 </template>
 
