@@ -227,7 +227,6 @@ export default {
               //如果自己开启了 还得去检查父级是否开启了
               this.judgmentParentNode(currentNode._parentId, type);
             } else {
-              currentNode.isChecked = true;
               //如果不是全部开启了 启动半选状态
               currentNode.ishalfChecked = true;
               //如果自己开启了 还得去检查父级是否开启了
@@ -247,7 +246,6 @@ export default {
               this.judgmentParentNode(currentNode._parentId, type);
             } else {
               //如果不是全部被关闭了
-              currentNode.isChecked = true;
               currentNode.ishalfChecked = true;
               this.judgmentParentNode(currentNode._parentId, type);
             }
@@ -439,7 +437,7 @@ export default {
   background: url("../assets/tick.png") center no-repeat;
   background-size: 100% auto;
 }
-.checkbox_con .checkbox_inner.checked_active.checked_half:before {
+.checkbox_con .checkbox_inner.checked_half:before {
   position: relative;
   top: 0px;
   left: 0;
