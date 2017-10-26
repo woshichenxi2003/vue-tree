@@ -7,7 +7,7 @@
         @incheckednode="checkednode"
         :isShowcheck="true"
         :isMultiple="true"
-        :depthShow="3"></tree>
+        :depthShow="0"></tree>
     </div>
 </template>
 
