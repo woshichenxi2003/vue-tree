@@ -6,7 +6,8 @@
         @inpulldown="pulldown"
         @incheckednode="checkednode"
         :isShowcheck="true"
-        :isMultiple="true"></tree>
+        :isMultiple="true"
+        :depthShow="3"></tree>
     </div>
 </template>
 

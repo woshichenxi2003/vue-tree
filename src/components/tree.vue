@@ -20,13 +20,18 @@ export default {
     isShowcheck: {
       type: Boolean,
       default: true
+    },
+    depthShow: {
+      type: Number
     }
   },
   methods: {
     //数据重建方法
     reBuildData(arr) {
+      window.currentDepth = 0;
       var newArr = [];
       arr.forEach((ele, index) => {
+        currentDepth = 1;
         if (ele._parentId == null) {
           // 给父节点添加自定义属性 初始化只有根目录显示不打开子目录
           this.$set(ele, "isShow", true);
@@ -39,18 +44,30 @@ export default {
           newArr.push(ele);
         }
       }, this);
-
       return newArr;
     },
     //找出一个id下的所有子节点的方法 ，用于在递归遍历中
     checkChildNode(cId, arr) {
+      console.log(cId);
+      currentDepth++;
+      //   console.log(currentDepth);
+      //   console.log(this.depthShow);
+      //   console.log(currentDepth >= this.depthShow);
       let currentArr = [];
       arr.forEach(function(element, index) {
         if (element._parentId == cId) {
           //找到子元素后继续寻找子元素的子元素
-          this.isAllOpen == true
-            ? this.$set(element, "isOpen", true)
-            : this.$set(element, "isOpen", false);
+          //增加演示到第几级的功能
+          console.log(currentDepth);
+          if (this.isAllOpen == true) {
+            if (currentDepth > this.depthShow) {
+              this.$set(element, "isOpen", false);
+            } else {
+              this.$set(element, "isOpen", true);
+            }
+          } else {
+            this.$set(element, "isOpen", false);
+          }
           this.$set(element, "isChecked", false);
           this.$set(element, "ishalfChecked", false);
           this.$set(element, "isShow", true);
@@ -58,6 +75,10 @@ export default {
           currentArr.push(element);
         }
       }, this);
+      if (currentArr) {
+        currentDepth--;
+        // console.log("这是一个叶子节点");
+      }
       return currentArr;
     },
 
