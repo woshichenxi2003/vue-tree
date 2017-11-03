@@ -29,7 +29,7 @@ export default {
     }
   },
   updated() {
-    console.log("视图更新了");
+    // console.log("视图更新了");
   },
   methods: {
     //数据重建方法
@@ -352,9 +352,7 @@ export default {
         !linkData.isOpen
       );
       let boo = linkData.isOpen;
-      console.log(linkData["isOpen"]);
       linkData.isOpen = !linkData.isOpen;
-      console.log(linkData.isOpen);
       eve.stopPropagation();
     },
     pitchOneNode(eve) {
