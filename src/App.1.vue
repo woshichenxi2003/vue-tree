@@ -7,7 +7,8 @@
         @incheckednode="checkednode"
         :isShowcheck="true"
         :isMultiple="true"
-        :depthShow="2"></tree>
+        :depthShow="3"></tree>
+        <button @click="handleclick">增加对象</button>
     </div>
 
 </template>
@@ -34,6 +35,21 @@ export default {
     },
     checkednode(arr) {
       console.log(arr);
+    },
+    handleclick() {
+      //   this.treeDataone.push({
+      //     _parentId: null,
+      //     pId: null,
+      //     id: "1",
+      //     dicId: null,
+      //     name: "kkkkkkk",
+      //     parentName: null,
+      //     orderNo: 1,
+      //     fullPath: "1",
+      //     property: 0
+      //   });
+      //   console.log(this.treeDataone);
+      this.treeDataone[0].name = "sdfkskdf";
     }
   }
 };

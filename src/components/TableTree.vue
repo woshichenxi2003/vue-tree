@@ -1,94 +1,40 @@
 <script>
 export default {
-  name: "tree",
+  name: "TableTree",
   components: {},
   data() {
-    return {};
-  },
-  computed: {
-    newNode() {
-      return this.reBuildData(this.treeData);
-    }
+    return {
+      newNode: this.treeData,
+      tableTh: this.tableHeader
+    };
   },
   props: {
     treeData: Array,
-    isMultiple: {
-      type: Boolean,
-      default: true
-    },
+    tableHeader: Array,
     isAllOpen: {
       type: Boolean,
       default: false
-    },
-    isShowcheck: {
-      type: Boolean,
-      default: true
-    },
-    depthShow: {
-      type: Number
     }
   },
-  updated() {
-    console.log("视图更新了");
-  },
-  methods: {
-    //数据重建方法
-    reBuildData(arr) {
-      window.currentDepth = 0;
-      var newArr = [];
-      arr.forEach((ele, index) => {
-        if (ele._parentId == null) {
-          currentDepth = 1;
-          // 给父节点添加自定义属性 初始化只有根目录显示不打开子目录
-          this.$set(ele, "isShow", true);
-          this.$set(ele, "isChecked", false);
-          this.$set(ele, "ishalfChecked", false);
-          if (this.isAllOpen == true) {
-            if (this.depthShow == 0) {
-              this.$set(ele, "isOpen", false);
-            } else {
-              this.$set(ele, "isOpen", true);
-            }
-          } else {
-            this.$set(ele, "isOpen", false);
-          }
-          this.$set(ele, "childNode", this.checkChildNode(ele.id, arr));
-          newArr.push(ele);
-        }
-      }, this);
-      return newArr;
-    },
-    //找出一个id下的所有子节点的方法 ，用于在递归遍历中
-    checkChildNode(cId, arr) {
-      currentDepth++;
+  computed: {
+    reBuildData() {
+      let warningList = this.newNode;
       let currentArr = [];
-      arr.forEach(function(element, index) {
-        if (element._parentId == cId) {
-          //找到子元素后继续寻找子元素的子元素
-          //判断节点层级是否大于指定层级来操作关闭
-          if (this.isAllOpen == true) {
-            if (currentDepth > this.depthShow) {
-              this.$set(element, "isOpen", false);
-            } else {
-              this.$set(element, "isOpen", true);
-            }
-          } else {
-            this.$set(element, "isOpen", false);
-          }
-          this.$set(element, "isChecked", false);
-          this.$set(element, "ishalfChecked", false);
-          this.$set(element, "isShow", true);
-          this.$set(element, "childNode", this.checkChildNode(element.id, arr));
+      let currentObj = {};
+      warningList.forEach(function(element) {
+        this.$set(element, "children", []);
+        if (currentObj[element.did]) {
+          currentObj[element.did]["children"].push(element);
+        } else {
+          currentObj[element.did] = element;
           currentArr.push(element);
         }
       }, this);
-      if (currentArr) {
-        currentDepth--;
-        // 遍历到叶子节点后将层级深度返回上一级;
-      }
       return currentArr;
-    },
-
+    }
+  },
+  methods: {
+    //找出一个id下的所有子节点的方法 ，用于在递归遍历中
     createNode(h, item) {
       let This = this;
       if (item.isShow) {
@@ -229,156 +175,48 @@ export default {
         );
       }
     },
-    judgmentParentNode(cid, type) {
-      //判断父级下面的子集是否都是关闭的 如果都关闭了 取消父级的选中
-      if (cid != null) {
-        //建一个变量等待缓存找出的node节点
-        let currentNode = {};
-        //循环整个数据找出id为cid的节点
-        this.treeData.forEach(function(element) {
-          if (element.id == cid) {
-            currentNode = element;
-          }
-        }, this);
-        //判断节点是否有子节点 有子节点的情况下判断 所有子节点是否都已经关闭
-        if (currentNode.childNode.length) {
-          //如果是选中 父级直接勾选 并且递归  如果是取消勾选 需判断父级是否所有子类都已经取消勾选
-          if (type == true) {
-            let currentNum = 0; //计数
-            currentNode.childNode.forEach(function(element) {
-              element.isChecked == type && currentNum++;
-            }, this);
-            if (currentNode.childNode.length == currentNum) {
-              currentNode.isChecked = type;
-              //如果是全部开启了，解除半选状态
-              currentNode.ishalfChecked = false;
-              //如果自己开启了 还得去检查父级是否开启了
-              this.judgmentParentNode(currentNode._parentId, type);
-            } else {
-              //如果不是全部开启了 启动半选状态
-              currentNode.ishalfChecked = true;
-              //如果自己开启了 还得去检查父级是否开启了
-              this.judgmentParentNode(currentNode._parentId, type);
-            }
-          } else {
-            let currentNum = 0; //计数
-            currentNode.childNode.forEach(function(element) {
-              element.isChecked == type && currentNum++;
-            }, this);
-            if (currentNode.childNode.length == currentNum) {
-              //去掉选择状态
-              currentNode.isChecked = type;
-              //如果全部关闭了 去掉半选状态
-              currentNode.ishalfChecked = false;
-              //如果自己关闭了 还得去检查父级是否关闭了
-              this.judgmentParentNode(currentNode._parentId, type);
-            } else {
-              //如果不是全部被关闭了
-              currentNode.ishalfChecked = true;
-              this.judgmentParentNode(currentNode._parentId, type);
-            }
-          }
-        }
-      } else {
-        return;
-      }
-    },
-    recheckedchildNode() {
+    buildHeader(h) {
       let currentArr = [];
-      this.treeData.forEach(function(element) {
-        if (element.childNode.length == 0) {
-          if (element.isChecked) {
-            currentArr.push(JSON.parse(JSON.stringify(element)));
-          }
-        }
+      this.tableTh.forEach(function(item) {
+        console.log(item);
+        currentArr.push(
+          h("th", {}, [h("div", { class: { cell: true } }, item)])
+        );
       }, this);
       return currentArr;
     },
-    //取消所有节点
-    cancelAllNodeChecked() {
-      this.treeData.forEach(function(element) {
-        element.isChecked = false;
-      }, this);
-    },
-    checkedNode(eve) {
-      let target = eve.srcElement || eve.target;
-      let linkData = target.linkData;
-      //解除半选状态
-      linkData.ishalfChecked = false;
-      if (this.isShowcheck == false && this.isMultiple == false) {
-        let currentChecked = linkData.isChecked;
-        //所有元素取消勾选
-        this.cancelAllNodeChecked();
-        //被点击元素变换状态
-        linkData.isChecked = !currentChecked;
-        //发送事件
-        this.$emit("incheckednode", this.recheckedchildNode()[0]);
-      } else {
-        //多选情况
-        //控制子元素同步
-        this.findNodeAndSet(
-          "isChecked",
-          !linkData.isChecked,
-          linkData.childNode
-        );
-        linkData.isChecked = !linkData.isChecked;
-        // 判断父元素是否所有子节点都已经关闭或者开启 需递归
-        this.judgmentParentNode(linkData._parentId, linkData.isChecked);
-        //向外发送事件
-        //筛选所有选中的子节点
-        this.$emit("incheckednode", this.recheckedchildNode());
-      }
-
-      eve.stopPropagation();
-    },
-    //修改后的递归子节点赋值方法
-    findNodeAndSet(key, value, arr) {
-      arr.forEach(function(element) {
-        element[key] = value;
-        if (element.childNode.length) {
-          this.findNodeAndSet(key, value, element.childNode);
-        }
-      }, this);
-    },
     show_down(eve) {
-      //兼容火狐 获取
-      let currenttarget = eve.srcElement || eve.target;
-      let linkData = currenttarget.linkData;
-      //   console.log(linkData);
-      //   this.$emit(
-      //     "inpulldown",
-      //     JSON.parse(JSON.stringify(linData)),
-      //     !linData.isOpen
-      //   );
-      //   let boo = linkData.isOpen;
-      console.log(linkData["isOpen"]);
-      linkData.isOpen = !linkData.isOpen;
-      console.log(linkData.isOpen);
+      let linData = eve.srcElement.linkData;
+      this.$emit(
+        "inpulldown",
+        JSON.parse(JSON.stringify(linData)),
+        !linData.isOpen
+      );
+      linData.isOpen = !linData.isOpen;
       eve.stopPropagation();
-    },
-    pitchOneNode(eve) {
-      let currenttarget = eve.srcElement || eve.target;
-      let linkData = currenttarget.linkData;
-      this.$emit("inselectnode", JSON.parse(JSON.stringify(linkData)));
     }
   },
   render: function(h) {
     let This = this;
-    window.newNode = this.newNode;
     return h(
       "div",
       {
         class: {
-          tree_con: true
-        },
-        attrs: {
-          onselectstart: "javascript:return false;"
+          "el-table": true,
+          "el-table--fit": true,
+          "el-table--enable-row-hover": true,
+          "el-table--enable-row-transition": true
         }
       },
-      this.newNode.map(item => {
-        return This.createNode(h, item);
-      })
+      [
+        h("div", { class: { "el-table__header-wrapper": true } }, [
+          h("table", {}, [h("tr", {}, this.buildHeader(h))])
+        ])
+      ]
     );
+  },
+  mounted() {
+    console.log(this.reBuildData);
   }
 };
 </script>

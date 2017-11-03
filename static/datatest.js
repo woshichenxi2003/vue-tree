@@ -35,3 +35,5 @@ var a = {
         }
     ]
 }
+
+var b = `?word=rap&asp_url=https%3A%2F%2Fbaike.baidu.com%2Fitem%2Frap%2F109414%3Flemmaid%3D109414&eid=800`

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>vue</title>
+    <script src="https://unpkg.com/vue@2.3.3/dist/vue.js"></script>
+    <style>
+        li:hover {
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+        <ul>
+            <li v-for="item,index in items" v-on:click="handle(index)">
+                <span>{{item.name}}</span>
+                <span>{{numbers[index]}}</span>
+            </li>
+        </ul>
+    </div>
+    <script>
+        var vm = new Vue({
+            el: ".wrap",
+            data: {
+                numbers: [],
+                items: [{
+                    name: 'jjj'
+                }, {
+                    name: 'kkk'
+                }, {
+                    name: 'lll'
+                }, ]
+            },
+            methods: {
+                handle: function(index) {
+                    // WHY: 更新数据，view层未渲染，但通过console这个数组可以发现数据确实更新了
+                    if (typeof(this.numbers[index]) === "undefined") {
+                        this.$set(this.numbers, index, 1);
+                    } else {
+                        this.$set(this.numbers, index, ++this.numbers[index]);
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
