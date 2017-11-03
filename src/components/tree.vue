@@ -301,11 +301,12 @@ export default {
       }, this);
     },
     checkedNode(eve) {
-      let target = eve.srcElement || eve.target;
-      let linkData = target.linkData;
+      let currenttarget = eve.srcElement || eve.target;
+      let linkData = currenttarget.linkData;
       //解除半选状态
       linkData.ishalfChecked = false;
       if (this.isShowcheck == false && this.isMultiple == false) {
+        //单选情况下
         let currentChecked = linkData.isChecked;
         //所有元素取消勾选
         this.cancelAllNodeChecked();
@@ -321,6 +322,7 @@ export default {
           !linkData.isChecked,
           linkData.childNode
         );
+        this.findNodeAndSet("ishalfChecked", false, linkData.childNode);
         linkData.isChecked = !linkData.isChecked;
         // 判断父元素是否所有子节点都已经关闭或者开启 需递归
         this.judgmentParentNode(linkData._parentId, linkData.isChecked);
@@ -344,13 +346,12 @@ export default {
       //兼容火狐 获取
       let currenttarget = eve.srcElement || eve.target;
       let linkData = currenttarget.linkData;
-      //   console.log(linkData);
-      //   this.$emit(
-      //     "inpulldown",
-      //     JSON.parse(JSON.stringify(linData)),
-      //     !linData.isOpen
-      //   );
-      //   let boo = linkData.isOpen;
+      this.$emit(
+        "inpulldown",
+        JSON.parse(JSON.stringify(linkData)),
+        !linkData.isOpen
+      );
+      let boo = linkData.isOpen;
       console.log(linkData["isOpen"]);
       linkData.isOpen = !linkData.isOpen;
       console.log(linkData.isOpen);
